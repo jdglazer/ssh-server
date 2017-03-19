@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queues>
+	<queue name="test-queue">
+		<max-commands-per-minute>100</max-commands-per-minute>
+		<max-data-input-per-minute>40</max-data-input-per-minute>
+		<max-cached-queue-data>2</max-cached-queue-data>
+		<max-thread-count>2</max-thread-count>
+		<destinations>
+			<destination user="josh" host="10.0.0.9" auth-method="password|key" />
+		</destinations>
+	</queue>
+</queues>

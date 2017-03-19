@@ -5,11 +5,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A class that serves as the model for an ssh queue and provides functionality to stage commands and
- * files for sending on the queue. Also stores the output from send commands
+ * files for sending on the queue. Also stores the output from send commands. A single instance of this 
+ * per queue
  * @author jglazer
  *
  */
-public class SshQueue implements Runnable  {
+public class SshQueue  {
+	
+	//The sleep interval between flushes of the queue
+	public static final int QUEUE_FLUSH_INTERVAL = 1000;
 	
 	private boolean running = true;
 
@@ -75,16 +79,6 @@ public class SshQueue implements Runnable  {
 		return volume;
 	}
 	
-	public void run() {
-		while( running ) {
-			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -95,5 +89,9 @@ public class SshQueue implements Runnable  {
 	
 	public void stop() {
 		running = false;
+	}
+	
+	public boolean isRunning() {
+		return running;
 	}
 }
