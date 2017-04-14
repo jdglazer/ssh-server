@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:int="http://www.springframework.org/schema/integration"
+  	xmlns:int-file="http://www.springframework.org/schema/integration/file"
+    xsi:schemaLocation="
+    https://www.springframework.org/schema/aop
+    https://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-4.3.xsd
+    http://www.springframework.org/schema/integration/file
+    http://www.springframework.org/schema/integration/file/spring-integration-file.xsd">
+    
+	<context:property-placeholder location="classpath:*/ssh-server.properties" />
+
+	<!-- Path way in for ssh commands -->
+	<int-file:inbound-channel-adapter 
+		id="ssh-server.input.commands"
+		directory="${files.input.destination}"
+		filename-pattern="*.ser">
+		<int:poller id="fileSystemPoller" 
+			fixed-delay="1000"
+			max-messages-per-poll="5" />
+	</int-file:inbound-channel-adapter>	
+	
+	<int:transformer
+		id="deserializer"
+		input-channel="ssh-server.input.commands"
+		output-channel="ssh-server.input.deserialized"
+		ref="ssh-server.deserializer"
+		method="deserialize"/>
+	
+	<int:channel id="ssh-server.input.deserialized" />
+	
+	<int:bridge input-channel="ssh-server.input.deserialized" output-channel="nullChannel" />
+		
+	<!--  Beans library for ssh server -->
+	<bean id="ssh-server.deserializer" class="com.jdglazer.messaging.serialization.Deserializer" />
+	
+</beans>
