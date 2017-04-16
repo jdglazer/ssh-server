@@ -4,6 +4,7 @@
     xmlns:context="http://www.springframework.org/schema/context"
     xmlns:int="http://www.springframework.org/schema/integration"
   	xmlns:int-file="http://www.springframework.org/schema/integration/file"
+  	xmlns:task="http://www.springframework.org/schema/task"
     xsi:schemaLocation="
     https://www.springframework.org/schema/aop
     https://www.springframework.org/schema/aop/spring-aop-4.3.xsd
@@ -12,32 +13,42 @@
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-4.3.xsd
     http://www.springframework.org/schema/integration/file
-    http://www.springframework.org/schema/integration/file/spring-integration-file.xsd">
+    http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task-4.3.xsd">
     
-	<context:property-placeholder location="classpath:*/ssh-server.properties" />
+	<context:property-placeholder location="classpath:ssh-server.properties" />
+	
+	<task:executor id="ssh-server.executors.inputFilePoller" pool-size="2" />
 
 	<!-- Path way in for ssh commands -->
-	<int-file:inbound-channel-adapter 
-		id="ssh-server.input.commands"
+	<int-file:inbound-channel-adapter id="ssh-server.input.commands"
 		directory="${files.input.destination}"
 		filename-pattern="*.ser">
-		<int:poller id="fileSystemPoller" 
-			fixed-delay="1000"
-			max-messages-per-poll="5" />
+		<int:poller task-executor="ssh-server.executors.inputFilePoller" 
+			fixed-rate="${files.input.polling.interval}" 
+			max-messages-per-poll="${files.input.polling.max-files}" />
 	</int-file:inbound-channel-adapter>	
 	
-	<int:transformer
-		id="deserializer"
+	<int:transformer id="deserializer"
 		input-channel="ssh-server.input.commands"
 		output-channel="ssh-server.input.deserialized"
-		ref="ssh-server.deserializer"
+		ref="ssh-server.input.deserializer"
 		method="deserialize"/>
+		
+	<int:filter input-channel="ssh-server.input.deserialized"
+		output-channel="ssh-server.input.filtered"
+		discard-channel="nullChannel"
+		ref="ssh-server.input.filter" />
 	
 	<int:channel id="ssh-server.input.deserialized" />
+	<int:channel id="ssh-server.input.filtered" />
 	
-	<int:bridge input-channel="ssh-server.input.deserialized" output-channel="nullChannel" />
+	<int:bridge input-channel="ssh-server.input.filtered" output-channel="nullChannel" />
 		
 	<!--  Beans library for ssh server -->
-	<bean id="ssh-server.deserializer" class="com.jdglazer.messaging.serialization.Deserializer" />
+	<bean id="ssh-server.input.deserializer" class="com.jdglazer.messaging.serialization.Deserializer" />
+	
+	<bean id="ssh-server.input.filter" class="com.jdglazer.messaging.ssh.SshInputObjectFilter" />
 	
 </beans>
