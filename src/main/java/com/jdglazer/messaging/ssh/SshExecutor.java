@@ -93,17 +93,17 @@ public class SshExecutor {
 		return 0;
 	}
 	
-	public int executeFileTransfer( String remoteUser, String remoteHost, File file ) {
+	public static int executeFileTransfer( String remoteUser, String remoteHost, File from, File to) {
 		String scpCommand = "scp ";
-		if( file.exists() && file.canRead() ) {
-			if( file.isDirectory() ) {
+		if( from.exists() && from.canRead() ) {
+			if( from.isDirectory() ) {
 				scpCommand += " -r";
 			}
-			scpCommand += " "+file;
+			scpCommand += " "+from;
 		} else {
 			return 1;
 		}
-		scpCommand += " "+remoteUser+"@"+remoteHost;
+		scpCommand += " "+remoteUser+"@"+remoteHost+":"+to;
 		Process process = ProcessExecutor.executeWithoutBlocking( scpCommand.trim() );
 		try {
 			return process.waitFor();
@@ -122,6 +122,8 @@ public class SshExecutor {
 	}
 	
 	public static void main( String [] args ) {
-		exchangeKey( "root", "10.0.0.11", "75dsb5yi#!");	
+		long timeInt = System.currentTimeMillis();
+		executeFileTransfer( "root", "10.0.0.11", new File("/home/jglazer/Downloads"), new File("/root") );	
+		System.out.println( (System.currentTimeMillis() - timeInt)/1000 );
 	}
 }
