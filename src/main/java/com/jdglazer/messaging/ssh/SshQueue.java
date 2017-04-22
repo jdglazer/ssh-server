@@ -23,7 +23,7 @@ public class SshQueue  {
 	
 	private ConcurrentHashMap< String, SshLocation > outputEndpoints = new ConcurrentHashMap<String, SshLocation>();
 	
-	private ArrayList < Object > commandFileQueue = new ArrayList< Object >();
+	private ArrayList < SshCommand > commandFileQueue = new ArrayList< SshCommand >();
 	
 	private ArrayList< SshCommandRecord > pastCommands = new ArrayList< SshCommandRecord >(); 
 	
@@ -31,13 +31,13 @@ public class SshQueue  {
 		this.config = config;
 	}
 	
-	public void addToQueue( Object in ) {
+	public void addToQueue( SshCommand in ) {
 		synchronized( commandFileQueue ) {
 			commandFileQueue.add( in );
 		}
 	}
 	
-	private Object getFromQueue() {
+	private SshCommand getFromQueue() {
 		synchronized( commandFileQueue ) {
 			if( commandFileQueue.size() > 0 )
 				return commandFileQueue.remove( commandFileQueue.size() );
@@ -77,6 +77,14 @@ public class SshQueue  {
 			}
 		}
 		return volume;
+	}
+	
+	public void addOutputEndpoint( String name, SshLocation location ) {
+		outputEndpoints.put(name, location);
+	}
+	
+	public ConcurrentHashMap< String, SshLocation> getOutputEndpoints() {
+		return outputEndpoints;
 	}
 	
 	public String getName() {

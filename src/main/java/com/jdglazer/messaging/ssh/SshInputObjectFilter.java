@@ -12,7 +12,12 @@ public class SshInputObjectFilter implements MessageSelector {
 	}
 	
 	public boolean accept( Message message ) {
-		return ( message instanceof SshCommand ) && !blockAll;
+		if( ( message instanceof SshCommand ) && !blockAll ) {
+			SshCommand command = (SshCommand) message;
+			return command.getQueueName() != null && command.getExecutionString() != null;
+		}
+		else 
+			return false;
 	}
 	
 	public void blockAllCommands( boolean block ) {

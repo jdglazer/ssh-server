@@ -51,4 +51,8 @@
 	
 	<bean id="ssh-server.input.filter" class="com.jdglazer.messaging.ssh.SshInputObjectFilter" />
 	
+	<bean id="ssh-server.queueManager" class="com.jdglazer.messaging.ssh.SshQueueManager" />
+	
+	<bean id="ssh-server.queue" class="com.jdglazer.messaging.ssh.SshQueue" scope="prototype" />
+	
 </beans>
