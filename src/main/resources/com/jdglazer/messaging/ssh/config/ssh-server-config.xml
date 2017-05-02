@@ -40,9 +40,27 @@
 		output-channel="ssh-server.input.filtered"
 		discard-channel="nullChannel"
 		ref="ssh-server.input.filter" />
+		
+	<int:recipient-list-router id="SshOperationRouter" input-channel="ssh-server.input.filtered" default-output-channel="nullChannel">
+		<int:recipient channel="ssh-server.input.command" 
+			selector-expression="Boolean.TRUE"/>
+		<int:recipient channel="ssh-server.input.file-transfer" 
+			selector-expression="payload.getCommandType()==com.jdglazer.messaging.ssh.SshCommand.FILE_TRANSFER" />
+	</int:recipient-list-router>
 	
 	<int:channel id="ssh-server.input.deserialized" />
+	
 	<int:channel id="ssh-server.input.filtered" />
+	
+	<int:channel id="ssh-server.input.command" >
+		<int:interceptors>
+			<bean class="com.jdglazer.messaging.ssh.SshCommandProvider" />
+		</int:interceptors>
+	</int:channel>
+	
+	<int:bridge input-channel="ssh-server.input.command" output-channel="nullChannel" />
+	
+	<int:channel id="ssh-server.input.file-transfer" />
 	
 	<int:bridge input-channel="ssh-server.input.filtered" output-channel="nullChannel" />
 		

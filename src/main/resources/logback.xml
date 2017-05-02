@@ -9,7 +9,10 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.jdglazer.messaging.serialization" level="INFO" additivity="false">
+	<logger name="com.jdglazer.messaging.serialialization" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="com.jdglazer.messaging.ssh" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 
